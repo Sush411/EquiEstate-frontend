@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EquiEstate AI</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .chart-container {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .chart-container.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .advice-box {
+      background-color: #fef3c7;
+      border-left: 6px solid #f59e0b;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .advice-box ul {
+      list-style-type: disc;
+      padding-left: 1.25rem;
+      margin-top: 0.5rem;
+    }
+    .chat-entry {
+      background-color: #f1f5f9;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .slider-container {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .calculator-container {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    /* Mobile-specific improvements */
+    @media (max-width: 768px) {
+      .slider-container {
+        padding: 1rem !important;
+      }
+      
+      .calculator-container {
+        padding: 1rem !important;
+      }
+      
+      /* Better touch targets for mobile */
+      input[type="range"] {
+        height: 1.5rem !important;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 2rem;
+        width: 2rem;
+        border-radius: 50%;
+        background: white;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      }
+      
+      input[type="range"]::-moz-range-thumb {
+        height: 2rem;
+        width: 2rem;
+        border-radius: 50%;
+        background: white;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      }
+      
+      /* Better input sizing for mobile */
+      input[type="text"], 
+      input[type="number"], 
+      select {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        padding: 1rem !important;
+      }
+      
+      /* Better button sizing */
+      button {
+        min-height: 3rem !important;
+        font-size: 16px !important;
+      }
+      
+      /* Improved spacing for mobile */
+      .space-y-8 > * + * {
+        margin-top: 1.5rem !important;
+      }
+      
+      /* Better grid layout for mobile */
+      .grid.md\\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+      }
+      
+      .grid.md\\:grid-cols-2 {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+      }
+    }
+    
+    /* Prevent zoom on input focus for iOS */
+    input[type="text"], 
+    input[type="number"], 
+    select {
+      font-size: 16px;
+    }
+    
+    /* Better touch feedback */
+    button:active {
+      transform: scale(0.98);
+    }
+    
+    /* Smooth transitions for all interactive elements */
+    * {
+      transition: all 0.2s ease;
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-800 font-sans">
+  <!-- Header -->
+  <header class="bg-blue-50 p-6 shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-blue-800">🏠 EquiEstate AI</h1>
+      <a href="#advice" class="px-4 py-2 bg-blue-700 text-white rounded-xl hover:bg-blue-800 transition">Get Advice</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative text-center py-20 px-6 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 left-0 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+      <div class="absolute top-0 right-0 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
+      <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-4000"></div>
+    </div>
+    
+    <div class="relative z-10 max-w-4xl mx-auto">
+      <div class="mb-8">
+        <div class="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6">
+          <span class="mr-2">🚀</span>
+          AI-Powered Investment Guidance
+        </div>
+      </div>
+      
+      <h2 class="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+        Your AI Guide to 
+        <span class="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">Smart Investment</span>
+      </h2>
+      
+      <p class="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8 leading-relaxed">
+        Confused between Real Estate and Stock Market? Let EquiEstate AI guide you with 
+        <span class="font-semibold text-white">tailored advice</span> based on your finances.
+      </p>
+      
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a href="#advice" class="group bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2">
+          <span>Get Started</span>
+          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </a>
+        
+        <a href="#about" class="group border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-300 backdrop-blur-sm flex items-center space-x-2">
+          <span>Learn More</span>
+          <svg class="w-5 h-5 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </a>
+      </div>
+      
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <div class="text-3xl font-bold text-white mb-2">🏠</div>
+          <div class="text-2xl font-bold text-white">Real Estate</div>
+          <div class="text-blue-200 text-sm">Tangible Assets & Rental Income</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <div class="text-3xl font-bold text-white mb-2">📈</div>
+          <div class="text-2xl font-bold text-white">Stock Market</div>
+          <div class="text-blue-200 text-sm">Liquid & Growth Potential</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <div class="text-3xl font-bold text-white mb-2">🤖</div>
+          <div class="text-2xl font-bold text-white">AI Analysis</div>
+          <div class="text-blue-200 text-sm">Personalized Recommendations</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Info Section -->
+  <section class="max-w-6xl mx-auto px-6 py-20 space-y-16" id="about">
+    <!-- Stock Market Section -->
+    <div class="fade-in">
+      <div class="text-center mb-12">
+        <h3 class="text-4xl font-bold text-blue-800 mb-4 flex items-center justify-center">
+          <span class="mr-3">📊</span>Stock Market Investment
+        </h3>
+        <div class="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-500 mx-auto rounded-full"></div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-2xl shadow-xl border border-blue-100 p-8">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div class="space-y-6">
+            <p class="text-lg text-gray-700 leading-relaxed">
+              The stock market represents a dynamic marketplace where investors can buy and sell shares of publicly traded companies. It's one of the most accessible and liquid investment options available to individual investors.
+            </p>
+            
+            <div class="bg-blue-100/50 p-6 rounded-xl border border-blue-200">
+              <h4 class="font-bold text-blue-800 mb-4 flex items-center">
+                <span class="mr-2">✨</span>Key Characteristics
+              </h4>
+              <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>High Liquidity:</strong> Stocks can be bought and sold quickly during market hours</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Lower Entry Barrier:</strong> You can start with as little as ₹500-1000</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Diversification:</strong> Easy to spread investments across multiple companies and sectors</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Professional Management:</strong> Mutual funds and ETFs offer expert management</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Dividend Income:</strong> Many stocks provide regular dividend payments</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-orange-500 mr-2 mt-1">⚠</span>
+                  <span><strong>Market Volatility:</strong> Prices can fluctuate significantly in short periods</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-xl">
+              <h5 class="font-bold mb-2">🎯 Perfect For:</h5>
+              <p class="text-blue-100">Stock market investments are ideal for those seeking growth potential, regular income through dividends, and the ability to quickly adjust their portfolio based on market conditions. They're particularly suitable for investors with moderate to high risk tolerance who can handle market fluctuations.</p>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 text-white text-center">
+            <div class="text-6xl mb-4">📈</div>
+            <h4 class="text-2xl font-bold mb-4">Why Choose Stocks?</h4>
+            <div class="space-y-4 text-blue-100">
+              <div class="bg-white/10 rounded-lg p-3">
+                <div class="font-bold text-white">High Growth Potential</div>
+                <div class="text-sm">Historically higher returns over long term</div>
+              </div>
+              <div class="bg-white/10 rounded-lg p-3">
+                <div class="font-bold text-white">Easy to Start</div>
+                <div class="text-sm">Begin with small amounts</div>
+              </div>
+              <div class="bg-white/10 rounded-lg p-3">
+                <div class="font-bold text-white">Professional Options</div>
+                <div class="text-sm">Mutual funds & ETFs available</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Real Estate Section -->
+    <div class="fade-in">
+      <div class="text-center mb-12">
+        <h3 class="text-4xl font-bold text-green-700 mb-4 flex items-center justify-center">
+          <span class="mr-3">🏡</span>Real Estate Investment
+        </h3>
+        <div class="w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-500 mx-auto rounded-full"></div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-green-50 via-white to-emerald-50 rounded-2xl shadow-xl border border-green-100 p-8">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-8 text-white text-center order-2 md:order-1">
+            <div class="text-6xl mb-4">🏠</div>
+            <h4 class="text-2xl font-bold mb-4">Why Choose Real Estate?</h4>
+            <div class="space-y-4 text-green-100">
+              <div class="bg-white/10 rounded-lg p-3">
+                <div class="font-bold text-white">Stable Income</div>
+                <div class="text-sm">Monthly rental cash flow</div>
+              </div>
+              <div class="bg-white/10 rounded-lg p-3">
+                <div class="font-bold text-white">Tangible Asset</div>
+                <div class="text-sm">Physical property you own</div>
+              </div>
+              <div class="bg-white/10 rounded-lg p-3">
+                <div class="font-bold text-white">Tax Benefits</div>
+                <div class="text-sm">Deductions & depreciation</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="space-y-6 order-1 md:order-2">
+            <p class="text-lg text-gray-700 leading-relaxed">
+              Real estate investment involves purchasing, owning, and managing physical properties for income generation and capital appreciation. It's one of the oldest and most reliable forms of wealth building.
+            </p>
+            
+            <div class="bg-green-100/50 p-6 rounded-xl border border-green-200">
+              <h4 class="font-bold text-green-800 mb-4 flex items-center">
+                <span class="mr-2">✨</span>Key Characteristics
+              </h4>
+              <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Tangible Asset:</strong> Physical property you can see and touch</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Rental Income:</strong> Steady monthly cash flow from tenants</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Appreciation Potential:</strong> Property values typically increase over time</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Tax Benefits:</strong> Deductions for mortgage interest, property taxes, and depreciation</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Inflation Hedge:</strong> Real estate values often rise with inflation</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">✓</span>
+                  <span><strong>Leverage:</strong> Ability to buy property with borrowed money</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-orange-500 mr-2 mt-1">⚠</span>
+                  <span><strong>Lower Liquidity:</strong> Takes time to sell and convert to cash</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-orange-500 mr-2 mt-1">⚠</span>
+                  <span><strong>High Capital Requirement:</strong> Significant upfront investment needed</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-xl">
+              <h5 class="font-bold mb-2">🎯 Perfect For:</h5>
+              <p class="text-green-100">Real estate is perfect for investors seeking stable income, long-term wealth building, and a hedge against inflation. It's particularly suitable for those with substantial capital, lower liquidity needs, and a preference for tangible assets.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="fade-in">
+      <div class="text-center mb-12">
+        <h3 class="text-4xl font-bold text-purple-700 mb-4 flex items-center justify-center">
+          <span class="mr-3">⚖️</span>Comprehensive Comparison
+        </h3>
+        <div class="w-24 h-1 bg-gradient-to-r from-purple-400 to-pink-500 mx-auto rounded-full"></div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-purple-50 via-white to-pink-50 rounded-2xl shadow-xl border border-purple-100 p-8">
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+          <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+            <h4 class="text-2xl font-bold mb-6 flex items-center">
+              <span class="mr-3">📈</span>Stocks
+            </h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Liquidity</span>
+                <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-bold">High</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Entry Cost</span>
+                <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-bold">Low (₹500+)</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Management Effort</span>
+                <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-bold">Low</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Diversification</span>
+                <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-bold">Easy</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Volatility</span>
+                <span class="bg-red-400 text-red-900 px-3 py-1 rounded-full text-sm font-bold">High</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Income Frequency</span>
+                <span class="bg-blue-400 text-blue-900 px-3 py-1 rounded-full text-sm font-bold">Quarterly</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg p-6 text-white">
+            <h4 class="text-2xl font-bold mb-6 flex items-center">
+              <span class="mr-3">🏠</span>Real Estate
+            </h4>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Liquidity</span>
+                <span class="bg-red-400 text-red-900 px-3 py-1 rounded-full text-sm font-bold">Low</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Entry Cost</span>
+                <span class="bg-red-400 text-red-900 px-3 py-1 rounded-full text-sm font-bold">High (₹10L+)</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Management Effort</span>
+                <span class="bg-red-400 text-red-900 px-3 py-1 rounded-full text-sm font-bold">High</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Diversification</span>
+                <span class="bg-red-400 text-red-900 px-3 py-1 rounded-full text-sm font-bold">Difficult</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Volatility</span>
+                <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-bold">Low</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/10 rounded-lg p-3">
+                <span class="font-medium">Income Frequency</span>
+                <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-bold">Monthly</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Additional Comparison Table -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+          <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+            <h4 class="text-xl font-bold text-white flex items-center">
+              <span class="mr-2">📊</span>Detailed Investment Comparison
+            </h4>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Aspect</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-blue-600 uppercase tracking-wider">Stock Market</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-green-600 uppercase tracking-wider">Real Estate</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Minimum Investment</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹500 - ₹5,000</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹10,00,000+</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Time to Exit</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Same day</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">3-12 months</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Income Potential</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Dividends + Capital Gains</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Rental Income + Appreciation</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Risk Level</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Medium to High</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Low to Medium</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Tax Benefits</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">LTCG benefits, ELSS</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Depreciation, interest deduction</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Maintenance</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Minimal</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Regular upkeep required</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Market Knowledge</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Basic to Advanced</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Local market expertise</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Leverage</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Limited (margin trading)</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">High (mortgage loans)</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Inflation Protection</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Moderate</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Excellent</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Chart Section -->
+    <div class="chart-container mt-12">
+      <div class="bg-gradient-to-br from-gray-50 via-white to-blue-50 rounded-2xl shadow-xl border border-gray-200 p-8">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold text-gray-800 mb-2">📊 Investment Growth Comparison</h3>
+          <p class="text-gray-600">See how your investments could grow over time</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8 items-start">
+          <!-- Chart and Key Insights -->
+          <div class="space-y-6">
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+              <canvas id="investmentChart" height="120"></canvas>
+            </div>
+            
+            <div class="bg-gray-100 p-6 rounded-xl">
+              <h5 class="font-bold text-gray-800 mb-3 flex items-center">
+                <span class="mr-2">💡</span>Key Insights
+              </h5>
+              <ul class="space-y-2 text-sm text-gray-700">
+                <li class="flex items-start">
+                  <span class="text-blue-500 mr-2 mt-1">•</span>
+                  <span>Stocks offer higher growth potential but with more volatility</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">•</span>
+                  <span>Real estate provides stable, predictable returns</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-purple-500 mr-2 mt-1">•</span>
+                  <span>Diversification across both can optimize your portfolio</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Performance Cards -->
+          <div class="space-y-6">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-xl">
+              <h4 class="text-xl font-bold mb-4 flex items-center">
+                <span class="mr-2">📈</span>Stock Market Performance
+              </h4>
+              <div class="space-y-3 text-blue-100">
+                <div class="flex justify-between items-center">
+                  <span>Average Annual Return:</span>
+                  <span class="font-bold text-white">10%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>5-Year Growth:</span>
+                  <span class="font-bold text-white">46.4%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Risk Level:</span>
+                  <span class="bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-sm font-bold">Medium-High</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-xl">
+              <h4 class="text-xl font-bold mb-4 flex items-center">
+                <span class="mr-2">🏠</span>Real Estate Performance
+              </h4>
+              <div class="space-y-3 text-green-100">
+                <div class="flex justify-between items-center">
+                  <span>Average Annual Return:</span>
+                  <span class="font-bold text-white">7%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>5-Year Growth:</span>
+                  <span class="font-bold text-white">31.1%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Risk Level:</span>
+                  <span class="bg-green-400 text-green-900 px-2 py-1 rounded text-sm font-bold">Low-Medium</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Separator -->
+  <div class="relative py-16">
+    <div class="absolute inset-0 flex items-center">
+      <div class="w-full border-t border-gray-300"></div>
+    </div>
+    <div class="relative flex justify-center">
+      <div class="bg-white px-8 py-4 rounded-full shadow-lg border border-gray-200">
+        <div class="flex items-center space-x-4 text-gray-600">
+          <span class="text-2xl">🎯</span>
+          <span class="font-semibold text-lg">Ready to Get Personalized Advice?</span>
+          <span class="text-2xl">🚀</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Optional Basic Info Form -->
+<section class="max-w-4xl mx-auto mt-16 px-6">
+  <div class="text-center mb-8">
+    <h3 class="text-3xl font-bold text-gray-800 mb-2">👤 Tell Us About You</h3>
+    <p class="text-gray-600 text-lg">Help us provide more personalized investment advice</p>
+  </div>
+  
+  <div class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-2xl shadow-xl border border-blue-100 p-8">
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="space-y-2">
+        <label for="userName" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+          <span class="mr-2">👋</span>Your Name
+        </label>
+        <input id="userName" name="userName" type="text" placeholder="Enter your name" 
+               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm" />
+      </div>
+      
+      <div class="space-y-2">
+        <label for="userAge" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+          <span class="mr-2">🎂</span>Age
+        </label>
+        <input id="userAge" name="userAge" type="number" placeholder="Your age" 
+               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm" />
+      </div>
+      
+      <div class="space-y-2">
+        <label for="monthlyIncome" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+          <span class="mr-2">💰</span>Monthly Income
+        </label>
+        <select id="monthlyIncome" name="monthlyIncome" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/80 backdrop-blur-sm">
+          <option disabled selected>Select income range</option>
+          <option value="below-25000">Below ₹25,000</option>
+          <option value="25000-50000">₹25,000 – ₹50,000</option>
+          <option value="50000-100000">₹50,000 – ₹1,00,000</option>
+          <option value="above-100000">Above ₹1,00,000</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="mt-6 p-4 bg-blue-100/50 rounded-xl border border-blue-200">
+      <p class="text-sm text-blue-800 flex items-center">
+        <span class="mr-2">💡</span>
+        <strong>Tip:</strong> This information helps us tailor investment recommendations to your financial situation and goals.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Customize Your Preferences -->
+<section class="max-w-5xl mx-auto mt-16 px-6">
+  <div class="text-center mb-8">
+    <h3 class="text-3xl font-bold text-gray-800 mb-2">🎚️ Customize Your Preferences</h3>
+    <p class="text-gray-600 text-lg">Adjust these sliders to reflect your investment style and preferences</p>
+  </div>
+  
+  <div class="slider-container rounded-2xl shadow-xl p-8 text-white">
+    <div class="space-y-8">
+      <!-- Risk Tolerance -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
+              <span class="text-white font-bold text-lg">⚡</span>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold">Risk Tolerance</h4>
+              <p class="text-white/80 text-sm">How much volatility are you comfortable with?</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span id="riskVal" class="text-3xl font-bold text-yellow-300">5</span>
+            <span class="text-white/80 text-sm block">/10</span>
+          </div>
+        </div>
+        <input id="riskSlider" type="range" min="0" max="10" value="5" 
+               class="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer slider" 
+               oninput="riskVal.textContent = this.value; updateSliderColors()" />
+        <div class="flex justify-between text-xs text-white/70 mt-2">
+          <span>Very Conservative</span>
+          <span>Very Aggressive</span>
+        </div>
+      </div>
+
+      <!-- Liquidity Need -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-sky-500 rounded-full flex items-center justify-center">
+              <span class="text-white font-bold text-lg">💧</span>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold">Liquidity Need</h4>
+              <p class="text-white/80 text-sm">How quickly might you need access to your funds?</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span id="liqVal" class="text-3xl font-bold text-sky-300">5</span>
+            <span class="text-white/80 text-sm block">/10</span>
+          </div>
+        </div>
+        <input id="liqSlider" type="range" min="0" max="10" value="5" 
+               class="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer slider" 
+               oninput="liqVal.textContent = this.value; updateSliderColors()" />
+        <div class="flex justify-between text-xs text-white/70 mt-2">
+          <span>Not Urgent</span>
+          <span>Very Urgent</span>
+        </div>
+      </div>
+
+      <!-- Capital Availability -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
+              <span class="text-white font-bold text-lg">💎</span>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold">Capital Availability</h4>
+              <p class="text-white/80 text-sm">How much capital are you ready to invest?</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span id="capVal" class="text-3xl font-bold text-emerald-300">5</span>
+            <span class="text-white/80 text-sm block">/10</span>
+          </div>
+        </div>
+        <input id="capSlider" type="range" min="0" max="10" value="5" 
+               class="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer slider" 
+               oninput="capVal.textContent = this.value; updateSliderColors()" />
+        <div class="flex justify-between text-xs text-white/70 mt-2">
+          <span>Minimal Funds</span>
+          <span>Large Funds</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 p-4 bg-white/10 rounded-xl border border-white/20">
+      <p class="text-white/90 text-sm flex items-center">
+        <span class="mr-2">🎯</span>
+        <strong>Pro Tip:</strong> These preferences help us recommend the perfect investment mix for your unique situation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Advice Section -->
+<section id="advice" class="bg-blue-100 py-16 px-6 mt-16">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-3xl font-semibold text-blue-900 mb-6">📥 Get Personalized Advice</h2>
+    <form id="askForm" class="bg-white shadow-lg rounded-xl p-6 space-y-4">
+      <input required name="question" type="text" placeholder="e.g. I earn ₹60,000/month. Should I invest in real estate or stocks?" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button type="submit" class="bg-blue-700 text-white px-6 py-3 rounded-xl hover:bg-blue-800 transition">Get Advice</button>
+    </form>
+    <div id="response" class="mt-6 advice-box hidden"></div>
+    <button id="downloadBtn" class="mt-4 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 hidden">📄 Download Advice</button>
+  </div>
+</section>
+
+<!-- Investment Calculator at the end -->
+<section class="max-w-5xl mx-auto mt-16 px-6 mb-16">
+  <div class="text-center mb-8">
+    <h3 class="text-3xl font-bold text-gray-800 mb-2">📈 Investment Calculator</h3>
+    <p class="text-gray-600 text-lg">Estimate your potential returns and plan your investment journey</p>
+  </div>
+  
+  <div class="calculator-container rounded-2xl shadow-xl p-8 text-white">
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Input Section -->
+      <div class="space-y-6">
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <h4 class="text-xl font-bold mb-4 flex items-center">
+            <span class="mr-2">💼</span>Investment Details
+          </h4>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="invAmt" class="block text-sm font-semibold text-white/90 mb-2">Investment Amount (₹)</label>
+              <input id="invAmt" name="invAmt" type="number" 
+                     class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 transition-all duration-200" 
+                     placeholder="e.g. 100000" />
+            </div>
+            
+            <div>
+              <label for="invRate" class="block text-sm font-semibold text-white/90 mb-2">Expected Annual Return (%)</label>
+              <input id="invRate" name="invRate" type="number" 
+                     class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 transition-all duration-200" 
+                     placeholder="e.g. 10" />
+            </div>
+            
+            <div>
+              <label for="invYears" class="block text-sm font-semibold text-white/90 mb-2">Investment Duration (years)</label>
+              <input id="invYears" name="invYears" type="number" 
+                     class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 transition-all duration-200" 
+                     placeholder="e.g. 5" />
+            </div>
+            
+            <button onclick="calculateReturns()" 
+                    class="w-full bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 border border-white/30 hover:border-white/50 flex items-center justify-center space-x-2">
+              <span>🚀 Calculate Returns</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Results Section -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <h4 class="text-xl font-bold mb-4 flex items-center">
+          <span class="mr-2">📊</span>Your Results
+        </h4>
+        
+        <div id="calcResult" class="text-center py-8">
+          <div class="text-white/60 text-sm">
+            <span class="text-4xl">💰</span>
+            <p class="mt-2">Enter your investment details and click calculate to see your potential returns</p>
+          </div>
+        </div>
+        
+        <!-- Quick Examples -->
+        <div class="mt-6 p-4 bg-white/10 rounded-xl">
+          <h5 class="font-semibold text-white/90 mb-3">💡 Quick Examples:</h5>
+          <div class="space-y-2 text-sm text-white/80">
+            <div class="flex justify-between">
+              <span>₹1,00,000 @ 10% for 5 years</span>
+              <span class="font-semibold">₹1,61,051</span>
+            </div>
+            <div class="flex justify-between">
+              <span>₹5,00,000 @ 12% for 10 years</span>
+              <span class="font-semibold">₹15,52,924</span>
+            </div>
+            <div class="flex justify-between">
+              <span>₹10,00,000 @ 8% for 15 years</span>
+              <span class="font-semibold">₹31,72,169</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Initialize Chart.js
+  const ctx = document.getElementById('investmentChart').getContext('2d');
+  const investmentChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+      datasets: [{
+        label: 'Stock Market (10% avg)',
+        data: [100000, 110000, 121000, 133100, 146410],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4
+      }, {
+        label: 'Real Estate (7% avg)',
+        data: [100000, 107000, 114490, 122504, 131080],
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Investment Growth Comparison (₹1,00,000 initial investment)',
+          font: { size: 16 }
+        },
+        legend: {
+          position: 'top'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '₹' + value.toLocaleString();
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Animation trigger function
+  function triggerAnimations() {
+    const fadeElements = document.querySelectorAll('.fade-in');
+    const chartContainer = document.querySelector('.chart-container');
+    
+    fadeElements.forEach(element => {
+      const elementTop = element.getBoundingClientRect().top;
+      const elementVisible = 150;
+      
+      if (elementTop < window.innerHeight - elementVisible) {
+        element.classList.add('visible');
+      }
+    });
+    
+    if (chartContainer) {
+      const chartTop = chartContainer.getBoundingClientRect().top;
+      const chartVisible = 150;
+      
+      if (chartTop < window.innerHeight - chartVisible) {
+        chartContainer.classList.add('visible');
+      }
+    }
+  }
+
+  // Trigger animations on scroll and load
+  window.addEventListener('scroll', triggerAnimations);
+  window.addEventListener('load', triggerAnimations);
+
+  function updateSliderColors() {
+    const risk = document.getElementById('riskSlider').value;
+    const liq = document.getElementById('liqSlider').value;
+    const cap = document.getElementById('capSlider').value;
+
+    document.getElementById('riskSlider').style.background = `linear-gradient(to right, #facc15 ${risk * 10}%, #e5e7eb ${risk * 10}%)`;
+    document.getElementById('liqSlider').style.background = `linear-gradient(to right, #38bdf8 ${liq * 10}%, #e5e7eb ${liq * 10}%)`;
+    document.getElementById('capSlider').style.background = `linear-gradient(to right, #34d399 ${cap * 10}%, #e5e7eb ${cap * 10}%)`;
+  }
+
+  updateSliderColors();
+
+  function calculateReturns() {
+    const p = parseFloat(document.getElementById('invAmt').value);
+    const r = parseFloat(document.getElementById('invRate').value) / 100;
+    const t = parseFloat(document.getElementById('invYears').value);
+    
+    if (isNaN(p) || isNaN(r) || isNaN(t)) {
+      document.getElementById('calcResult').innerHTML = `
+        <div class="text-red-300 text-center">
+          <span class="text-4xl">⚠️</span>
+          <p class="mt-2 text-sm">Please enter valid inputs</p>
+        </div>
+      `;
+      return;
+    }
+    
+    const amount = p * Math.pow(1 + r, t);
+    const profit = amount - p;
+    
+    document.getElementById('calcResult').innerHTML = `
+      <div class="space-y-4">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-white mb-2">₹${amount.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+          <div class="text-white/80 text-sm">Total Value after ${t} years</div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 text-center">
+          <div class="bg-white/10 rounded-lg p-3">
+            <div class="text-lg font-bold text-white">₹${p.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+            <div class="text-white/70 text-xs">Principal Amount</div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-3">
+            <div class="text-lg font-bold text-green-300">₹${profit.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+            <div class="text-white/70 text-xs">Total Profit</div>
+          </div>
+        </div>
+        
+        <div class="text-center text-white/80 text-sm">
+          <span class="font-semibold">${(r * 100).toFixed(1)}%</span> annual return compounded yearly
+        </div>
+      </div>
+    `;
+  }
+
+  // Global variables for chat functionality
+  let conversationHistory = [];
+  let userData = {};
+  let lastQuestion = "";
+
+  // Function to collect all user data
+  function collectUserData() {
+    return {
+      personalInfo: {
+        name: document.getElementById('userName').value || 'Anonymous',
+        age: document.getElementById('userAge').value || null,
+        monthlyIncome: document.getElementById('monthlyIncome').value || null
+      },
+      preferences: {
+        riskTolerance: parseInt(document.getElementById('riskSlider').value),
+        liquidityNeed: parseInt(document.getElementById('liqSlider').value),
+        capitalAvailability: parseInt(document.getElementById('capSlider').value)
+      }
+    };
+  }
+
+  // Function to create chat interface
+  function createChatInterface() {
+    // Remove any existing chat interface first
+    const existingChat = document.getElementById('chatSection');
+    if (existingChat) {
+      existingChat.remove();
+    }
+    
+    const adviceSection = document.getElementById('advice');
+    const chatHTML = `
+      <div id="chatSection" class="mt-12">
+        <div class="text-center mb-6">
+          <h3 class="text-2xl font-semibold text-blue-900 mb-2">💬 Continue the Conversation</h3>
+          <p class="text-gray-600">Ask follow-up questions to get more detailed advice</p>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100">
+          <!-- Chat Header -->
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 rounded-t-xl border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span class="text-white font-bold text-lg">AI</span>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800">EquiEstate AI Advisor</h4>
+                  <p class="text-sm text-gray-600">Ready to help with your investment questions</p>
+                </div>
+              </div>
+              <div class="text-sm text-gray-500">
+                <span id="chatStatus">Online</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Chat Messages -->
+          <div id="chatContainer" class="h-96 overflow-y-auto p-6 space-y-4">
+            <div id="chatMessages"></div>
+          </div>
+          
+          <!-- Chat Input -->
+          <div class="border-t border-gray-200 p-4">
+            <form id="chatForm" class="flex gap-3">
+              <input id="chatInput" type="text" 
+                     placeholder="Ask about risk management, tax implications, or any investment concerns..." 
+                     class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400">
+              <button type="submit" 
+                      class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition duration-200 font-medium flex items-center space-x-2">
+                <span>Send</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+              </button>
+            </form>
+            
+            <!-- Quick Suggestions -->
+            <div class="mt-4">
+              <p class="text-sm text-gray-500 mb-2">Quick questions you might want to ask:</p>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="askQuickQuestion('What about tax implications?')" 
+                        class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full transition">
+                  Tax implications
+                </button>
+                <button onclick="askQuickQuestion('How much should I invest initially?')" 
+                        class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full transition">
+                  Initial investment amount
+                </button>
+                <button onclick="askQuickQuestion('What about market timing?')" 
+                        class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full transition">
+                  Market timing
+                </button>
+                <button onclick="askQuickQuestion('How to diversify my portfolio?')" 
+                        class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full transition">
+                  Portfolio diversification
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert chat interface after the response div
+    const responseDiv = document.getElementById('response');
+    responseDiv.insertAdjacentHTML('afterend', chatHTML);
+    
+    // Add event listener for chat form
+    document.getElementById('chatForm').addEventListener('submit', handleChatMessage);
+    
+    // Add welcome message
+    setTimeout(() => {
+      addChatMessage("Hi! I'm here to help you with any follow-up questions about your investment strategy. Feel free to ask about specific topics like risk management, tax implications, or portfolio diversification.", false);
+    }, 500);
+  }
+
+  // Function to add message to chat with better styling
+  function addChatMessage(message, isUser = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`;
+    
+    const messageBubble = document.createElement('div');
+    messageBubble.className = `max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
+      isUser 
+        ? 'bg-blue-600 text-white rounded-br-md' 
+        : 'bg-gray-100 text-gray-800 rounded-bl-md'
+    }`;
+    
+    // Add user avatar for AI messages
+    if (!isUser) {
+      const avatarDiv = document.createElement('div');
+      avatarDiv.className = 'w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3 mb-2';
+      avatarDiv.innerHTML = '<span class="text-white text-xs font-bold">AI</span>';
+      messageDiv.appendChild(avatarDiv);
+    }
+    
+    // Format message with line breaks
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    messageBubble.innerHTML = formattedMessage;
+    
+    messageDiv.appendChild(messageBubble);
+    chatMessages.appendChild(messageDiv);
+    
+    // Scroll to bottom with smooth animation
+    const chatContainer = document.getElementById('chatContainer');
+    chatContainer.scrollTo({
+      top: chatContainer.scrollHeight,
+      behavior: 'smooth'
+    });
+  }
+
+  // Function to handle quick question buttons
+  function askQuickQuestion(question) {
+    const chatInput = document.getElementById('chatInput');
+    chatInput.value = question;
+    chatInput.focus();
+  }
+
+  // Modified main form submission
+  document.getElementById('askForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const question = form.question.value;
+    lastQuestion = question;
+    
+    // Collect all user data
+    userData = collectUserData();
+    
+    // Initialize conversation history
+    conversationHistory = [
+      { role: 'user', content: question }
+    ];
+    
+    // Show loading state
+    const responseBox = document.getElementById('response');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    responseBox.innerHTML = `
+      <div class="flex items-center justify-center space-x-3 text-blue-800">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <span class="text-lg">Getting personalized advice...</span>
+      </div>
+    `;
+    responseBox.classList.remove('hidden');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+        <span>Processing...</span>
+      </div>
+    `;
+    
+    try {
+      const res = await fetch('http://127.0.0.1:8000/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          question: question,
+          user_data: userData
+        })
+      });
+      
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const data = await res.json();
+
+      const lines = data.reply.split(/[\n\.]+/).filter(line => line.trim().length > 0);
+      if (lines.length > 1 && lines.length <= 6) {
+        const listHTML = '<ul>' + lines.map(line => `<li>${line.trim()}</li>`).join('') + '</ul>';
+        responseBox.innerHTML = listHTML;
+      } else {
+        responseBox.textContent = data.reply;
+      }
+
+      // Add AI response to conversation history
+      conversationHistory.push({ role: 'assistant', content: data.reply });
+
+      downloadBtn.classList.remove('hidden');
+      
+      // Create chat interface for follow-up questions
+      createChatInterface();
+      
+    } catch (error) {
+      console.error('Error:', error);
+      responseBox.innerHTML = `
+        <div class="text-red-600 text-center">
+          <span class="text-2xl">⚠️</span>
+          <p class="mt-2">Sorry, there was an error processing your request. Please try again.</p>
+        </div>
+      `;
+    } finally {
+      // Reset button state
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Get Advice';
+    }
+  });
+
+  // Function to handle chat messages
+  async function handleChatMessage(e) {
+    e.preventDefault();
+    const chatInput = document.getElementById('chatInput');
+    const message = chatInput.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message to chat
+    addChatMessage(message, true);
+    conversationHistory.push({ role: 'user', content: message });
+    
+    // Clear input and show loading
+    chatInput.value = '';
+    const sendBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = sendBtn.innerHTML;
+    
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+        <span>Thinking...</span>
+      </div>
+    `;
+    
+    try {
+      // Send follow-up message to FastAPI backend
+      const response = await fetch('http://127.0.0.1:8000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: message,
+          user_data: userData,
+          conversation_history: conversationHistory
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const data = await response.json();
+      
+      // Add AI response to chat
+      addChatMessage(data.reply, false);
+      conversationHistory.push({ role: 'assistant', content: data.reply });
+      
+    } catch (error) {
+      console.error('Error:', error);
+      addChatMessage('Sorry, there was an error processing your message. Please try again.', false);
+    } finally {
+      // Reset button state
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = originalText;
+    }
+  }
+
+  // Modified download button to include all conversation data
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const content = document.getElementById('response').innerText;
+    
+    // Create comprehensive report
+    let report = `EquiEstate AI - Investment Advice Report\n`;
+    report += `==========================================\n\n`;
+    
+    // User Data Section
+    report += `USER PROFILE:\n`;
+    report += `Name: ${userData.personalInfo.name}\n`;
+    report += `Age: ${userData.personalInfo.age || 'Not specified'}\n`;
+    report += `Monthly Income: ${userData.personalInfo.monthlyIncome || 'Not specified'}\n\n`;
+    
+    report += `INVESTMENT PREFERENCES:\n`;
+    report += `Risk Tolerance: ${userData.preferences.riskTolerance}/10\n`;
+    report += `Liquidity Need: ${userData.preferences.liquidityNeed}/10\n`;
+    report += `Capital Availability: ${userData.preferences.capitalAvailability}/10\n\n`;
+    
+    // Initial Question and Advice
+    report += `INITIAL QUESTION:\n${lastQuestion}\n\n`;
+    report += `INITIAL ADVICE:\n${content}\n\n`;
+    
+    // Conversation History
+    if (conversationHistory.length > 2) {
+      report += `FOLLOW-UP CONVERSATION:\n`;
+      report += `======================\n\n`;
+      
+      // Skip the first two entries (initial question and response)
+      for (let i = 2; i < conversationHistory.length; i++) {
+        const message = conversationHistory[i];
+        const prefix = message.role === 'user' ? 'You: ' : 'AI: ';
+        report += `${prefix}${message.content}\n\n`;
+      }
+    }
+    
+    report += `\nGenerated on: ${new Date().toLocaleString()}\n`;
+    report += `EquiEstate AI - Your Smart Investment Guide`;
+    
+    const file = new Blob([report], { type: 'text/plain' });
+    const element = document.createElement('a');
+    element.href = URL.createObjectURL(file);
+    element.download = 'equiestate_advice_report.txt';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  });
+</script>
+
+</body>
+</html>
