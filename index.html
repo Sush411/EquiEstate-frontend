@@ -537,6 +537,86 @@
     </div>
     
     <!-- Chart Section -->
+    <div class="chart-container mt-12">
+      <div class="bg-gradient-to-br from-gray-50 via-white to-blue-50 rounded-2xl shadow-xl border border-gray-200 p-8">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold text-gray-800 mb-2">📊 Investment Growth Comparison</h3>
+          <p class="text-gray-600">See how your investments could grow over time</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8 items-start">
+          <!-- Chart and Key Insights -->
+          <div class="space-y-6">
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+              <canvas id="investmentChart" height="120"></canvas>
+            </div>
+            
+            <div class="bg-gray-100 p-6 rounded-xl">
+              <h5 class="font-bold text-gray-800 mb-3 flex items-center">
+                <span class="mr-2">💡</span>Key Insights
+              </h5>
+              <ul class="space-y-2 text-sm text-gray-700">
+                <li class="flex items-start">
+                  <span class="text-blue-500 mr-2 mt-1">•</span>
+                  <span>Stocks offer higher growth potential but with more volatility</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2 mt-1">•</span>
+                  <span>Real estate provides stable, predictable returns</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-purple-500 mr-2 mt-1">•</span>
+                  <span>Diversification across both can optimize your portfolio</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Performance Cards -->
+          <div class="space-y-6">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-xl">
+              <h4 class="text-xl font-bold mb-4 flex items-center">
+                <span class="mr-2">📈</span>Stock Market Performance
+              </h4>
+              <div class="space-y-3 text-blue-100">
+                <div class="flex justify-between items-center">
+                  <span>Average Annual Return:</span>
+                  <span class="font-bold text-white">10%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>5-Year Growth:</span>
+                  <span class="font-bold text-white">46.4%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Risk Level:</span>
+                  <span class="bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-sm font-bold">Medium-High</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-xl">
+              <h4 class="text-xl font-bold mb-4 flex items-center">
+                <span class="mr-2">🏠</span>Real Estate Performance
+              </h4>
+              <div class="space-y-3 text-green-100">
+                <div class="flex justify-between items-center">
+                  <span>Average Annual Return:</span>
+                  <span class="font-bold text-white">7%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>5-Year Growth:</span>
+                  <span class="font-bold text-white">31.1%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Risk Level:</span>
+                  <span class="bg-green-400 text-green-900 px-2 py-1 rounded text-sm font-bold">Low-Medium</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- Separator -->
